@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Rideshare",
+  "description": "A sleek and modern concept for a ridesharing application, powered by the Gemini API to generate intelligent ride options. This web app, built with React and Tailwind CSS, demonstrates how AI can enhance user experience in transportation services.",
+  "requestFramePermissions": []
+}
