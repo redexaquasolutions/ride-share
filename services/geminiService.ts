@@ -2,7 +2,23 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { RideOption } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+let ai: GoogleGenAI | null = null;
+
+/**
+ * Lazily initializes and returns the GoogleGenAI client.
+ * Throws an error if the API key is not configured.
+ */
+const getAiClient = (): GoogleGenAI => {
+  if (!ai) {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      throw new Error('API_KEY environment variable not set. Please configure it in your deployment settings.');
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
+
 
 const rideOptionsSchema = {
   type: Type.ARRAY,
@@ -46,7 +62,8 @@ export const findRides = async (pickup: string, destination: string): Promise<Ri
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const geminiClient = getAiClient();
+    const response = await geminiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
@@ -66,6 +83,10 @@ export const findRides = async (pickup: string, destination: string): Promise<Ri
     return rideOptions;
   } catch (error) {
     console.error('Error fetching ride options from Gemini:', error);
-    throw new Error('Failed to generate ride options.');
+    if (error instanceof Error) {
+        // Re-throw the original error to be displayed in the UI
+        throw error;
+    }
+    throw new Error('An unknown error occurred while fetching ride options.');
   }
 };

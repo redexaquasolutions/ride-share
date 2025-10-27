@@ -30,7 +30,7 @@ const App: React.FC = () => {
       setAppState(AppState.RESULTS);
     } catch (err) {
       console.error(err);
-      setError('Could not find rides. Please try again later.');
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       setAppState(AppState.IDLE);
     }
   }, [pickup, destination]);
